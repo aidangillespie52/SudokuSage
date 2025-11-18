@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Sudoku</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Your palette + tokens live here -->
+  <link rel="stylesheet" href="/static/css/custom.css"/>
+  <link rel="stylesheet" href="/static/css/board.css"/>
+  <link rel="stylesheet" href="/static/css/response.css"/>
+  <link rel="stylesheet" href="/static/css/buttons.css"/>
+</head>
+<body>
+  <div class="board-container">
+    <div class="board" id="board" role="grid" aria-label="9 by 9 Sudoku board"></div>
+    <p class="sr-only" id="board-help">
+      Use arrow keys to move. Type digits 1 through 9 to fill a cell. Prefilled cells are read-only.
+    </p>
+  </div>
+
+  <div class="right-side">
+    <div class="response-window" id="response-window"></div>
+    <div class="prompt-input">
+      <input id="user-input" type="text" placeholder="Ask the AI…" />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="/static/js/board.js"></script>
+  <script src="/static/js/typewriter.js"></script>
+  <script src="/static/js/response.js"></script>
+
+</body>
+</html>
