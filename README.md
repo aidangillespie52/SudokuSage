@@ -56,13 +56,13 @@ uv init .
 ```
 This will create a `pyproject.toml`.
 ### 3. Add dependencies
-From inside `CSC-5240-Project`:
+From inside `CSC-5240-Project/`:
 ```
 uv sync
 ```
 This will add all of the packages necessary into a local venv.
 ### 4. Run the app with `uvicorn`
-Still in `CSC-5240-Project`:
+Still in `CSC-5240-Project/`:
 ```
 uv run uvicorn app:app --reload
 ```
