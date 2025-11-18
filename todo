@@ -1,0 +1,10 @@
+TODO
+====
+
+- make the game functional
+- add new game button
+- add difficulty options
+- make it look more professional
+- get the chat window a little bigger and display in markdown
+- create login page for persistent sessions
+- create db for login and create session table so it can auto log you in
