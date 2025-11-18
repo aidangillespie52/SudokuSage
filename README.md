@@ -16,7 +16,7 @@ In both cases, you’ll keep your `OPENAI_API_KEY` in a `.env` file at the **pro
 You don’t need this exact structure, but this is the idea:
 
 ```bash
-your-project/
+CSC-5240-Project/
 ├─ app.py          # contains FastAPI instance "app"
 ├─ pyproject.toml  # (if using uv)
 ├─ .env            # environment variables (not committed)
@@ -36,7 +36,7 @@ def read_root():
 ## 2. Create `.env` with OPENAI_API_KEY
 At the project root, create a file named `.env`:
 ```
-# from your-project/
+# from CSC-5240-Project/
 echo "OPENAI_API_KEY=sk-your-real-api-key-here" > .env
 ```
 Or edit `.env` manually so it contains:
@@ -51,7 +51,7 @@ Follow the offical instructions at
 ### 2. Initialize the project (if you don’t have pyproject.toml yet)
 From your project directory:
 ```
-cd your-project
+cd CSC-5240-Project
 uv init .
 ```
 This will create a `pyproject.toml`.
@@ -77,7 +77,7 @@ Then open:
 ### 1. Create & activate a virtual environment
 From your project directory:
 ```
-cd your-project
+cd CSC-5240-Project
 python -m venv .venv
 ```
 ### 2. Activate it:
