@@ -28,6 +28,7 @@ dependencies = [
     "numpy==2.3.4",
     "openai==2.6.1",
     "propcache==0.4.1",
+    "py-sudoku>=2.0.0",
     "pydantic==2.12.3",
     "pydantic-core==2.41.4",
     "pygame==2.6.1",
@@ -37,5 +38,6 @@ dependencies = [
     "tqdm==4.67.1",
     "typing-extensions==4.15.0",
     "typing-inspection==0.4.2",
+    "uvicorn[standard]>=0.38.0",
     "yarl==1.22.0",
 ]
