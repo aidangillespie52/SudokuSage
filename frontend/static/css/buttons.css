@@ -1,0 +1,27 @@
+/* frontend/static/css/buttons.css */
+
+.new-game-btn {
+  position: fixed;          /* stays in top right */
+  top: 16px;
+  right: 16px;
+
+  background: color-mix(in oklch, var(--primary) 35%, var(--bg));
+  color: var(--bg-light);
+  border: 2px solid var(--primary);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px color-mix(in oklch, var(--text) 20%, transparent);
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+.new-game-btn:hover {
+  background: color-mix(in oklch, var(--primary) 60%, var(--bg));
+  box-shadow: 0 8px 24px color-mix(in oklch, var(--text) 30%, transparent);
+}
+
+.new-game-btn:active {
+  transform: translateY(1px);
+}

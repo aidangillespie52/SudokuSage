@@ -1,0 +1,93 @@
+/* frontend/static/css/response.css */
+
+.response-window {
+  background: color-mix(in oklch, var(--text) 92%, black);
+  color: var(--bg-light);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+
+  /* base padding + extra on the right */
+  padding: 16px;
+  padding-right: 24px;
+
+  /* keep it narrow enough to fit next to the board */
+  width: min(340px, 32vw);
+  height: auto;
+  max-height: calc(100vh - 40px); /* subtract padding or header if needed */
+
+  box-sizing: border-box;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.45;
+
+  /* Smooth scroll + quality-of-life */
+  scroll-behavior: smooth;
+
+  /* Depth + subtle glow */
+  box-shadow:
+    0 0 0 2px color-mix(in oklch, var(--border) 60%, transparent),
+    0 12px 32px color-mix(in oklch, var(--text) 25%, transparent),
+    inset 0 0 18px color-mix(in oklch, var(--highlight) 6%, transparent);
+
+  background-image:
+    radial-gradient(circle at 25% 25%, color-mix(in oklch, var(--text) 75%, black) 0%, transparent 60%),
+    radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--text) 45%, black) 0%, transparent 70%);
+}
+
+/* scrollbar styling — keeps the vibe clean */
+.response-window::-webkit-scrollbar {
+  width: 8px;
+}
+.response-window::-webkit-scrollbar-track {
+  background: color-mix(in oklch, var(--text) 60%, black);
+  border-radius: 8px;
+}
+.response-window::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--highlight) 35%, var(--text));
+  border-radius: 8px;
+}
+.response-window::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--highlight) 60%, var(--text));
+}
+
+.response-window:hover {
+  box-shadow:
+    0 0 0 2px color-mix(in oklch, var(--border) 80%, transparent),
+    0 18px 38px color-mix(in oklch, var(--text) 32%, transparent),
+    inset 0 0 22px color-mix(in oklch, var(--highlight) 10%, transparent);
+  transition: box-shadow .30s ease, background .30s ease;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  line-height: 1.45;
+  font-weight: 500;
+  white-space: pre-wrap;
+  display: inline-block;
+}
+
+/* User (right aligned) */
+.user-bubble {
+  align-self: flex-end;
+  background: color-mix(in oklch, var(--highlight) 20%, var(--text));
+  color: var(--bg-light);
+  border: 1px solid color-mix(in oklch, var(--highlight) 40%, var(--text));
+}
+
+/* Assistant (left aligned) */
+.ai-bubble {
+  align-self: flex-start;
+  background: color-mix(in oklch, var(--bg-light) 90%, var(--text));
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Make response-window a flexbox column */
+#response-window {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
