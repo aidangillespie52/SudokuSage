@@ -35,14 +35,20 @@ def read_root():
 ```
 ## 2. Create `.env` with OPENAI_API_KEY
 At the project root, create a file named `.env`:
-```
-# from CSC-5240-Project/
-echo "OPENAI_API_KEY=sk-your-real-api-key-here" > .env
-```
 Or edit `.env` manually so it contains:
 ```
 OPENAI_API_KEY=sk-your-real-api-key-here
+OPENAI_MODEL=your-desired-openai-model
 ```
+
+### Available models
+You can see all available OpenAI models at:
+[text](https://platform.openai.com/docs/models)
+
+### API Key
+You can generate an API Key from the OpenAI dashboard at:
+[text](https://platform.openai.com/account/api-keys)
+
 ---
 ## Option A - Using `uv` (recommended)
 ### 1. Install `uv` (one-time)
