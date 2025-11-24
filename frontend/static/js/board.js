@@ -2,6 +2,10 @@
 
 // TODO: make it to where you can add change numbers while selecting a number you've edited
 window.BoardUtils = (function () {
+    function countEmptySquares(boardStr) {
+        return boardStr.split("").filter(ch => ch === "0").length;
+    }
+
     function validateBoardString(boardStr) {
     if (boardStr.length !== 81) {
         throw new Error("Board string must be exactly 81 characters");
@@ -178,6 +182,10 @@ window.BoardUtils = (function () {
             puzzle = data;
         }).then(() => {
             buildGrid(puzzle, boardEl);
+            
+            // Count empties
+            const emptyCount = countEmptySquares(puzzle);
+            console.log("Empty squares:", emptyCount);
         });
     }
 
@@ -192,4 +200,58 @@ window.BoardUtils = (function () {
 
 })();
 
-window.BoardUtils.createBoard();
+const newGameBtn = document.getElementById("btn-new-game");
+const modal = document.getElementById("difficulty-modal");
+const cancelBtn = document.getElementById("difficulty-cancel");
+
+// Open difficulty popup ONLY when New Game pressed
+newGameBtn.addEventListener("click", () => {
+  modal.classList.remove("hidden");
+});
+
+// Close popup helper
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+// Cancel button closes it
+cancelBtn.addEventListener("click", closeModal);
+
+// Click outside card closes it
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) closeModal();
+});
+
+// ESC closes it
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeModal();
+});
+
+
+// Difficulty buttons → run game & hide popup
+document.querySelectorAll(".difficulty-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const diff = btn.dataset.diff;
+
+    const strengthMap = {
+      "very-easy": 0.10,
+      "easy":      0.25,
+      "medium":    0.50,
+      "hard":      0.75,
+      "expert":    0.90
+    };
+
+    const strength = strengthMap[diff];
+
+    console.log("selected difficulty:", diff, "strength:", strength);
+
+    closeModal();
+
+    // 🔥 Create the board with 0–1 difficulty selection
+    window.BoardUtils.createBoard(strength);
+  });
+});
+
+
+
+window.BoardUtils.createBoard(0.5);
