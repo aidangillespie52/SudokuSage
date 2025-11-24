@@ -77,3 +77,17 @@ inputEl.addEventListener("keydown", (e) => {
     handleResponse();
   }
 });
+
+// buttons
+document.getElementById("btn-hint").addEventListener("click", () => {
+    const hintStr = "Give me a single cell hint for the current board.";
+    console.log("Hint button clicked");
+
+    inputEl.value = hintStr;
+    handleResponse();
+});
+
+document.getElementById("btn-clear").addEventListener("click", () => {
+    console.log("Clear button clicked");
+    clearBoard();
+});
