@@ -25,7 +25,7 @@ def solve_board(board_str):
     puzzle = puzzle.solve()
 
     print(puzzle)
-    
+    print(puzzle.has_multiple_solutions())
     if puzzle is None:
         raise ValueError("Invalid board string; cannot be solved.")
 
