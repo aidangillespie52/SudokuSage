@@ -10,6 +10,8 @@ import asyncio
 import aiohttp
 from backend.utils import get_logger
 
+INCLUDE_SOLVED = True
+
 logger = get_logger(__name__)
 router = APIRouter(prefix="/ai")
 
@@ -36,15 +38,18 @@ def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str
     board_info = (
         "Here is the Sudoku board you need to solve:\n"
         f"{board}\n\n"
-        "And here is its solution:\n"
-        f"{solution}\n\n"
-        "Please use this information to assist the user."
     )
+    
+    if INCLUDE_SOLVED:
+        board_info += (
+            "Here is the solved Sudoku board for your reference:\n"
+            f"{solution}\n\n"
+        )
+    
+    board_info += ("Please provide your response based on this board.")
     
     if messages[-1].role == "user":
         messages[-1].content += "\n\n" + board_info
-        
-    messages[-1].content += "\n\n" + board_info
 
 @router.post("/query")
 async def query_endpoint(req: ChatRequest, request: Request):
@@ -79,34 +84,10 @@ async def query_endpoint(req: ChatRequest, request: Request):
     logger.info(f"Solved board: {solved_board}")
     
     logger.debug(f"Messages for LLM: {messages}")
-    
-    # 1) Make sure the session exists
-    session = getattr(request.app.state, "session", None)
-    if session is None:
-        logger.error("aiohttp session not initialized on app.state")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Server not ready. Please try again later."
-        )
 
-    # 2) Call LLM with proper error handling
     try:
-        response = await call_llm(session, [msg.model_dump() for msg in messages])
-
-    except asyncio.TimeoutError:
-        logger.warning("LLM request timed out")
-        raise HTTPException(
-            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="The model took too long to respond. Please try again."
-        )
-
-    except aiohttp.ClientError as e:
-        logger.error(f"Network error talking to LLM: {e!r}")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Error talking to the AI service."
-        )
-
+        response = await call_llm([msg.model_dump() for msg in messages])
+        
     except Exception as e:
         # catch-all (keep this last)
         logger.exception("Unexpected error in /ai/query")
