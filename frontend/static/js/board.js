@@ -1,5 +1,7 @@
 // frontend/static/js/board.js
 
+let puzzle_id = null;  // will be set when a new puzzle is created
+
 // TODO: make it to where you can add change numbers while selecting a number you've edited
 window.BoardUtils = (function () {
     function countEmptySquares(boardStr) {
@@ -7,83 +9,117 @@ window.BoardUtils = (function () {
     }
 
     function validateBoardString(boardStr) {
-    if (boardStr.length !== 81) {
-        throw new Error("Board string must be exactly 81 characters");
-    }
-
-    // convert to 2D array of ints
-    const board = [];
-    for (let r = 0; r < 9; r++) {
-        const row = [];
-        for (let c = 0; c < 9; c++) {
-        const ch = boardStr[r * 9 + c];
-        row.push(ch === "0" ? 0 : Number(ch));
+        if (boardStr.length !== 81) {
+            throw new Error("Board string must be exactly 81 characters");
         }
-        board.push(row);
-    }
 
-    const errors = {
-        rows: new Set(),     // indices of bad rows
-        cols: new Set(),     // indices of bad cols
-        boxes: new Set(),    // indices 0–8 for the 3x3 boxes
-    };
-
-    function hasDuplicateNonZero(nums) {
-        const seen = new Set();
-        for (const n of nums) {
-        if (n === 0) continue;
-        if (seen.has(n)) return true;
-        seen.add(n);
+        // convert to 2D array of ints
+        const board = [];
+        for (let r = 0; r < 9; r++) {
+            const row = [];
+            for (let c = 0; c < 9; c++) {
+                const ch = boardStr[r * 9 + c];
+                row.push(ch === "0" ? 0 : Number(ch));
+            }
+            board.push(row);
         }
-        return false;
-    }
 
-    // check rows
-    for (let r = 0; r < 9; r++) {
-        if (hasDuplicateNonZero(board[r])) {
-        errors.rows.add(r);
-        }
-    }
+        const errors = {
+            rows: new Set(),
+            cols: new Set(),
+            boxes: new Set(),
+        };
 
-    // check columns
-    for (let c = 0; c < 9; c++) {
-        const col = [];
-        for (let r = 0; r < 9; r++) col.push(board[r][c]);
-        if (hasDuplicateNonZero(col)) {
-        errors.cols.add(c);
-        }
-    }
+        // store exact conflicting cells as "r,c" strings
+        const conflictSet = new Set();
 
-    // check 3x3 boxes
-    // box index: br*3 + bc, where br,bc in 0..2
-    for (let br = 0; br < 3; br++) {
-        for (let bc = 0; bc < 3; bc++) {
-        const nums = [];
-        for (let r = br * 3; r < br * 3 + 3; r++) {
-            for (let c = bc * 3; c < bc * 3 + 3; c++) {
-            nums.push(board[r][c]);
+        function markDuplicatesInRow(r) {
+            const map = new Map(); // value -> [cols...]
+            for (let c = 0; c < 9; c++) {
+                const v = board[r][c];
+                if (v === 0) continue;
+                if (!map.has(v)) map.set(v, []);
+                map.get(v).push(c);
+            }
+            for (const [v, cols] of map.entries()) {
+                if (cols.length > 1) {
+                    errors.rows.add(r);
+                    cols.forEach(c => conflictSet.add(`${r},${c}`));
+                }
             }
         }
-        if (hasDuplicateNonZero(nums)) {
+
+        function markDuplicatesInCol(c) {
+            const map = new Map(); // value -> [rows...]
+            for (let r = 0; r < 9; r++) {
+                const v = board[r][c];
+                if (v === 0) continue;
+                if (!map.has(v)) map.set(v, []);
+                map.get(v).push(r);
+            }
+            for (const [v, rowsArr] of map.entries()) {
+                if (rowsArr.length > 1) {
+                    errors.cols.add(c);
+                    rowsArr.forEach(r => conflictSet.add(`${r},${c}`));
+                }
+            }
+        }
+
+        function markDuplicatesInBox(br, bc) {
+            const map = new Map(); // value -> [ [r,c], ... ]
+            for (let r = br * 3; r < br * 3 + 3; r++) {
+                for (let c = bc * 3; c < bc * 3 + 3; c++) {
+                    const v = board[r][c];
+                    if (v === 0) continue;
+                    if (!map.has(v)) map.set(v, []);
+                    map.get(v).push([r, c]);
+                }
+            }
             const boxIndex = br * 3 + bc;
-            errors.boxes.add(boxIndex);
+            for (const [v, cells] of map.entries()) {
+                if (cells.length > 1) {
+                    errors.boxes.add(boxIndex);
+                    cells.forEach(([r, c]) => conflictSet.add(`${r},${c}`));
+                }
+            }
         }
+
+        // rows
+        for (let r = 0; r < 9; r++) {
+            markDuplicatesInRow(r);
         }
+
+        // cols
+        for (let c = 0; c < 9; c++) {
+            markDuplicatesInCol(c);
+        }
+
+        // boxes
+        for (let br = 0; br < 3; br++) {
+            for (let bc = 0; bc < 3; bc++) {
+                markDuplicatesInBox(br, bc);
+            }
+        }
+
+        const valid =
+            errors.rows.size === 0 &&
+            errors.cols.size === 0 &&
+            errors.boxes.size === 0;
+
+        const conflicts = Array.from(conflictSet).map(key => {
+            const [r, c] = key.split(",").map(Number);
+            return { row: r, col: c };
+        });
+
+        return {
+            valid,
+            rows: Array.from(errors.rows),
+            cols: Array.from(errors.cols),
+            boxes: Array.from(errors.boxes),
+            conflicts,  // 👈 new: exact conflicting cells
+        };
     }
 
-    const valid =
-        errors.rows.size === 0 &&
-        errors.cols.size === 0 &&
-        errors.boxes.size === 0;
-
-    // convert Sets to arrays for easier JSON / usage
-    return {
-        valid,
-        rows: Array.from(errors.rows),
-        cols: Array.from(errors.cols),
-        boxes: Array.from(errors.boxes),
-    };
-    }
 
     function onBoardChanged() {
         console.log("Board changed!");
@@ -96,6 +132,9 @@ window.BoardUtils = (function () {
         console.log("Bad boxes:", result.boxes);
 
         console.log(boardString);
+        
+        clearHighlights();
+        highlightConflicts(result);
     }
 
     function getBoardString() {
@@ -180,6 +219,8 @@ window.BoardUtils = (function () {
         }).then(response => response.json()).then(data => {
             console.log("New board created:", data);
             puzzle = data;
+            puzzle_id = data;
+
         }).then(() => {
             buildGrid(puzzle, boardEl);
             
@@ -189,13 +230,62 @@ window.BoardUtils = (function () {
         });
     }
 
+    function clearHighlights() {
+        const boardEl = document.getElementById('board');
+        boardEl.querySelectorAll('.cell.hint').forEach(cell => {
+            cell.classList.remove('hint');
+        });
+    }
+
+    function highlightCell(row, col) {
+        const boardEl = document.getElementById('board');
+        if (!boardEl) return;
+        
+        // clear old
+        clearHighlights()
+        
+        // add to CELL, not input
+        const cell = boardEl.querySelector(
+            `.cell[data-row="${row}"][data-col="${col}"]`
+        );
+
+        if (cell) {
+            cell.classList.add('hint');
+            const input = cell.querySelector('input');
+            if (input) input.focus();
+        }
+    }
+
+    function highlightConflicts(result) {
+        const boardEl = document.getElementById("board");
+        if (!boardEl) return;
+
+        // clear old error highlights
+        boardEl.querySelectorAll(".cell.error").forEach(cell => {
+            cell.classList.remove("error");
+        });
+
+        // highlight each conflicting cell
+        result.conflicts.forEach(({ row, col }) => {
+            const cell = boardEl.querySelector(
+                `.cell[data-row="${row}"][data-col="${col}"]`
+            );
+            if (cell) {
+                cell.classList.add("error");
+            }
+        });
+    }
+
     // --- expose these functions ---
     return {
         validateBoardString,
         onBoardChanged,
         getBoardString,
         buildGrid,
-        createBoard
+        createBoard,
+        highlightCell,
+        clearHighlights,
+        highlightConflicts,
     };
 
 })();
@@ -247,7 +337,6 @@ document.querySelectorAll(".difficulty-btn").forEach(btn => {
 
     closeModal();
 
-    // 🔥 Create the board with 0–1 difficulty selection
     window.BoardUtils.createBoard(strength);
   });
 });
