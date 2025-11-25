@@ -54,20 +54,14 @@ You can generate an API Key from the OpenAI dashboard at:
 ### 1. Install `uv` (one-time)
 Follow the offical instructions at
 `https://docs.astral.sh/uv/getting-started/installation/`
-### 2. Initialize the project (if you don’t have pyproject.toml yet)
-From your project directory:
-```
-cd CSC-5240-Project
-uv init .
-```
-This will create a `pyproject.toml`.
-### 3. Add dependencies
+
+### 2. Add dependencies
 From inside `CSC-5240-Project/`:
 ```
 uv sync
 ```
 This will add all of the packages necessary into a local venv.
-### 4. Run the app with `uvicorn`
+### 3. Run the app with `uvicorn`
 Still in `CSC-5240-Project/`:
 ```
 uv run uvicorn app:app --reload
