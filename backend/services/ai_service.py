@@ -18,7 +18,7 @@ class ChatMessage(BaseModel):
     content: str
 
 INCLUDE_SOLVED = os.getenv("INCLUDE_SOLVED_BOARD_IN_PROMPT", "true").lower() == "true"
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+MODEL = os.getenv("OPENAI_MODEL", "gpt-5-nano")
 SYS_PROMPT = load_prompt("system.md")
 SYS_MESSAGE = ChatMessage(role="system", content=SYS_PROMPT)
 
@@ -30,6 +30,8 @@ llm = ChatOpenAI(
     reasoning = {"effort": "medium"},
     verbosity = "low",
 )
+
+logger.info(f"Using LLM model: {MODEL}")
 
 def _to_lc_messages(messages: List[Dict[str, str]]):
     """
