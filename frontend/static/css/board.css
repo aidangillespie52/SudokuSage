@@ -226,3 +226,15 @@
 .difficulty-modal.hidden {
   display: none;
 }
+
+.cell.hint,
+.cell.hint:hover {
+  background: yellow !important;
+  transition: background 0.15s ease, outline 0.15s ease;
+}
+
+/* Error highlighting */
+.cell.error {
+    background: rgba(255, 0, 0, 0.15) !important;
+    transition: background 0.15s ease;
+}
