@@ -32,17 +32,16 @@ def init_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS solve_steps (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            puzzle_id     INTEGER NOT NULL,
+            puzzle        INTEGER NOT NULL,
+            session_id    TEXT NOT NULL,
             step_number   INTEGER NOT NULL,
             hint_text     TEXT,
-            x             INTEGER,      -- 1-based
-            y             INTEGER,      -- 1-based
-            value         INTEGER,
-            board_before  TEXT NOT NULL,
-            board_after   TEXT NOT NULL,
+            r             INTEGER,      -- 1-based
+            c             INTEGER,      -- 1-based
+            value         INTEGER,      -- digit placed
             method_used   TEXT,
             created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (puzzle_id) REFERENCES puzzles(id)
+            FOREIGN KEY (puzzle) REFERENCES puzzles(initial_board)
         )
     """)
 
@@ -60,38 +59,55 @@ def create_puzzle(size: int, box_rows: int, box_cols: int, initial_board_str: st
         """,
         (size, box_rows, box_cols, initial_board_str),
     )
+    
     conn.commit()
     puzzle_id = cur.lastrowid
     conn.close()
     return puzzle_id
 
+def _get_next_step_number(conn: sqlite3.Connection, puzzle: str) -> int:
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT MAX(step_number) AS max_step FROM solve_steps WHERE puzzle = ?",
+        (puzzle,),
+    )
+    row = cur.fetchone()
+    max_step = row["max_step"] if row and row["max_step"] is not None else None
+    return 0 if max_step is None else max_step + 1
+
 def log_step(
-    puzzle_id: int,
-    step_number: int,
+    puzzle: int,
+    session_id: str,
     hint_text: str,
-    x: int,
-    y: int,
+    r: int,
+    c: int,
     value: int,
-    board_before: str,
-    board_after: str,
-    method_used: str = "LLM"
+    method_used: str = "Unknown",
+    step_number: Optional[int] = None,
 ) -> int:
     """Insert a solve step and return its ID."""
+    
     conn = get_connection()
     cur = conn.cursor()
+    
+    if step_number is None:
+        step_number = _get_next_step_number(conn, puzzle)
+
     cur.execute(
         """
         INSERT INTO solve_steps
-        (puzzle_id, step_number, hint_text, x, y, value,
-         board_before, board_after, method_used)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (puzzle, session_id, step_number, hint_text, r, c, value,
+         method_used)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (puzzle_id, step_number, hint_text, x, y, value,
-         board_before, board_after, method_used),
+        (puzzle, session_id, step_number, hint_text, r, c, value,
+         method_used),
     )
+    
     conn.commit()
     step_id = cur.lastrowid
     conn.close()
+    
     return step_id
 
 def get_steps_for_puzzle(puzzle_id: int) -> List[sqlite3.Row]:
@@ -105,3 +121,10 @@ def get_steps_for_puzzle(puzzle_id: int) -> List[sqlite3.Row]:
     rows = cur.fetchall()
     conn.close()
     return rows
+
+if __name__ == "__main__":
+    init_db()
+    id = "some-id"
+    
+    rows = get_steps_for_puzzle(id)
+    print(rows)
