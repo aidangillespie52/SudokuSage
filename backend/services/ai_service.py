@@ -3,28 +3,32 @@
 import os
 import asyncio
 from dotenv import load_dotenv
-from backend.utils import get_logger
-from typing import List, Dict, Any, Optional
-
+from fastapi import HTTPException, status
+from backend.utils import get_logger, load_prompt
+from typing import List, Dict, Any, Optional, Literal
+from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 logger = get_logger(__name__)
 load_dotenv()
 
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "system"]
+    content: str
 
-# Initialize once (LangChain reads OPENAI_API_KEY from env automatically)
+INCLUDE_SOLVED = os.getenv("INCLUDE_SOLVED_BOARD_IN_PROMPT", "true").lower() == "true"
+MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+SYS_PROMPT = load_prompt("system.md")
+SYS_MESSAGE = ChatMessage(role="system", content=SYS_PROMPT)
+
 llm = ChatOpenAI(
     model=MODEL,
-    use_responses_api=True,     # key change
+    use_responses_api=True,
     temperature=0.2,
     max_retries=3,
-    model_kwargs={
-        # Responses API style
-        "reasoning": {"effort": "medium"},
-        "verbosity": "low",
-    },
+    reasoning = {"effort": "medium"},
+    verbosity = "low",
 )
 
 def _to_lc_messages(messages: List[Dict[str, str]]):
@@ -65,6 +69,58 @@ def _content_to_text(content) -> str:
     # fallback
     return str(content)
 
+def validate_query_params(board: Optional[str], session_id: Optional[str], messages: List[ChatMessage]) -> None:
+    if board is None:
+        logger.warning("No board string provided in query parameters.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Board string is required as a query parameter."
+        )
+    
+    if board == "":
+        logger.warning("No board string provided in query parameters.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Board string is required as a query parameter."
+        )
+    
+    if len(board) != 81 or not all(c.isdigit() for c in board):
+        logger.warning(f"Invalid board string provided: {board}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid board string. Must be exactly 81 digits (0-9)."
+        )
+
+    if not session_id:
+        logger.warning("No session_id provided in query parameters.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="session_id is required as a query parameter."
+        )
+        
+    if not messages or messages[0].role != "system":
+        return [SYS_MESSAGE] + messages
+    
+    return messages
+
+def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str) -> None:
+    board_info = (
+        "Here is the Sudoku board you need to solve:\n"
+        f"{board}\n\n"
+    )
+    
+    if INCLUDE_SOLVED:
+        board_info += (
+            "Here is the solved Sudoku board for your reference:\n"
+            f"{solution}\n\n"
+        )
+    
+    board_info += ("Please provide your response based on this board.")
+    
+    if messages[-1].role == "user":
+        messages[-1].content += "\n\n" + board_info
+    
+    return messages
 
 async def call_llm(messages: List[Dict[str, str]]) -> str:
     lc_messages = _to_lc_messages(messages)
