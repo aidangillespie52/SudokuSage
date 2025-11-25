@@ -1,5 +1,6 @@
 // frontend/static/js/response.js
 
+const sessionID = Math.random().toString(36).slice(2);
 
 const inputEl = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
@@ -21,7 +22,7 @@ async function handleResponse() {
     document.getElementById("board")
   );
 
-  const payload = { messages, board: boardStr };
+  const payload = { messages: messages, board: boardStr, puzzle_id: puzzle_id, session_id: sessionID };
   console.log("REQUEST PAYLOAD:", payload);
 
   // --- Add placeholder AI bubble ---
@@ -41,6 +42,7 @@ async function handleResponse() {
     messages.push({ role: "assistant", content: reply });
 
     updateThinkingBubble(thinkingBubble, reply);
+    window.BoardUtils.highlightCell(data.r - 1, data.c - 1);  // convert to 0-based
   } catch (err) {
     console.error("ERROR:", err);
     updateThinkingBubble(thinkingBubble, "Error contacting server.");
