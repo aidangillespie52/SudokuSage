@@ -348,6 +348,7 @@ langchain-core==1.1.0 \
     --hash=sha256:2b76a82d427922c8bc51c08404af4fc2a29e9f161dfe2297cb05091e810201e7 \
     --hash=sha256:2c9f27dadc6d21ed4aa46506a37a56e6a7e2d2f9141922dc5c251ba921822ee6
     # via
+    #   csc5240-project
     #   langchain
     #   langchain-openai
     #   langgraph
