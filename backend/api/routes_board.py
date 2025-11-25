@@ -6,6 +6,8 @@ from backend.utils import get_logger
 from backend.services.board_service import generate_board, solve_board
 import random
 
+from backend.database.db_driver import create_puzzle
+
 logger = get_logger(__name__)
 router = APIRouter(prefix="/board")
 
@@ -30,6 +32,18 @@ async def get_board(difficulty: float):
     except Exception as e:
         logger.exception("Board generation failed.")
         raise HTTPException(status_code=500, detail="Failed to generate board.")
-
+    
+    # Store the generated puzzle in the SQLite database.
+    # 9x9 Sudoku => size=9, box_rows=3, box_cols=3.
+    try:
+        create_puzzle(
+            size=9,
+            box_rows=3,
+            box_cols=3,
+            initial_board_str=board,
+        )
+    except Exception:
+        logger.exception("Failed to persist generated puzzle to the database.")
+    
     return board
 

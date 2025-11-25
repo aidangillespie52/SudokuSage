@@ -9,6 +9,8 @@ from backend.utils import get_logger
 from backend.api.routes_ai import router as ai_router
 from backend.api.routes_board import router as board_router
 
+from backend.database.db_driver import init_db
+
 BASE_DIR = Path(__file__).resolve().parent
 logger = get_logger(__name__)
 
@@ -17,6 +19,10 @@ async def lifespan(app: FastAPI):
     # startup
     app.state.session = aiohttp.ClientSession()
     logger.info("GLOBAL SESSION CREATED")
+
+    # initialize database
+    init_db()
+    logger.info("Sudoku database initialized")
 
     try:
         yield  # app runs while this is active
