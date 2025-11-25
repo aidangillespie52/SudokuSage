@@ -8,18 +8,13 @@ from typing import Optional
 PROMPT_DIR = Path(__file__).parent / "prompts"
 
 def load_prompt(name: str) -> str:
-    """
-    Load a prompt markdown/text file from backend/prompts/.
-    Usage: load_prompt("system"), load_prompt("hint")
-    """
-    path = PROMPT_DIR / f"{name}.md"
+    path = PROMPT_DIR / f"{name}"
     return path.read_text(encoding="utf-8")
 
 from colorama import init as colorama_init, Fore, Style
 
 # Initialize colorama once (works well on Windows too)
 colorama_init(autoreset=True)
-
 
 class ColorFormatter(logging.Formatter):
     LEVEL_COLORS = {
@@ -44,7 +39,6 @@ class ColorFormatter(logging.Formatter):
 
 # Single shared handler for all loggers created via get_logger
 _stream_handler: Optional[logging.Handler] = None
-
 
 def _get_stream_handler() -> logging.Handler:
     global _stream_handler
