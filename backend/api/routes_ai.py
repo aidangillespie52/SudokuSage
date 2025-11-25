@@ -65,6 +65,7 @@ async def query_endpoint(req: ChatRequest):
         )
 
     if not hint_btn_pressed:
+        logger.info("Successfully responded without hint extraction.")
         return {"reply": response}
     
     hint = extract_hint_fields(response)
@@ -79,6 +80,8 @@ async def query_endpoint(req: ChatRequest):
         value=hint.value,
         method_used=hint.method_used
     )
+    
+    logger.info("Successfully extracted hint fields and logged step.")
     
     return {
         "reply": response,
