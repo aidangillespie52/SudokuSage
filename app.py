@@ -1,15 +1,18 @@
+# app.py
+
+# imports
 from pathlib import Path
-import aiohttp
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from backend.utils import get_logger
-from backend.api.routes_ai import router as ai_router
-from backend.api.routes_board import router as board_router
-from backend.api.routes_analytics import router as analytics_router
 
+# local imports
+from backend.utils import get_logger
+from backend.api.ai import router as ai_router
+from backend.api.board import router as board_router
+from backend.api.analytics import router as analytics_router
 from backend.database.db_driver import init_db
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -18,8 +21,6 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # startup
-    app.state.session = aiohttp.ClientSession()
-    logger.info("GLOBAL SESSION CREATED")
 
     # initialize database
     init_db()
@@ -29,9 +30,8 @@ async def lifespan(app: FastAPI):
         yield  # app runs while this is active
         
     finally:
-        # shutdown (always run, even on Ctrl+C)
-        await app.state.session.close()
-        print("GLOBAL SESSION CLOSED")
+        # shutdown
+        logger.info("Shutting down FastAPI app")
 
 app = FastAPI(lifespan=lifespan)
 
