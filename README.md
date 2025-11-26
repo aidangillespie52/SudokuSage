@@ -63,7 +63,7 @@ This will add all of the packages necessary into a local venv.
 ### 3. Run the app with `uvicorn`
 Still in `CSC-5240-Project/`:
 ```
-uv run uvicorn app:app --reload
+uv run uvicorn app:app
 ```
 - `app:app` = `module_name:FastAPI_instance_name`
 - `-- reload` = auto-reload on code changes (dev only)
@@ -97,7 +97,7 @@ pip install -r requirements.txt
 ```
 ### 4. Run it
 ```
-python -m uvicorn app:app --reload
+python -m uvicorn app:app
 ```
 Then open:
 `http://127.0.0.1:8000/`
