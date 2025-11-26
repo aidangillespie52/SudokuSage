@@ -1,24 +1,29 @@
-# backend/api/routes_ai.py
+# backend/api/ai.py
 
+# imports
 from fastapi import APIRouter, Request, HTTPException, status
-from backend.services.ai_service import call_llm, validate_query_params, add_board_to_messages, ChatMessage
-from backend.services.board_service import solve_board
+from typing import List, Dict, Any
+from pydantic import BaseModel
+
+# local imports
+from backend.database.db_driver import log_step
+from backend.services.ai import call_llm, validate_query_params, add_board_to_messages, ChatMessage
+from backend.services.board import solve_board
 from backend.services.hints import extract_hint_fields
 from backend.utils import load_prompt
 from backend.utils import get_logger
-from backend.database.db_driver import log_step
-from typing import List
-from pydantic import BaseModel
 
+logger = get_logger(__name__)
+router = APIRouter(prefix="/ai")
+
+# model for request body
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     board: str
     puzzle_id: str
     session_id: str
-    
-logger = get_logger(__name__)
-router = APIRouter(prefix="/ai")
 
+# helper to check if last message requests a single hint
 def last_message_has_single_hint(messages: List[ChatMessage]) -> bool:
     TARGET = "Give me a single cell hint for the current board."
     
@@ -29,7 +34,7 @@ def last_message_has_single_hint(messages: List[ChatMessage]) -> bool:
     return last.role == "user" and TARGET in last.content
 
 @router.post("/query")
-async def query_endpoint(req: ChatRequest):
+async def query_endpoint(req: ChatRequest) -> Dict[str, Any]:
     data = req.model_dump()
     board = data.get("board")
     puzzle_id = data.get("puzzle_id")
@@ -37,6 +42,7 @@ async def query_endpoint(req: ChatRequest):
     logger.info(f"Received /ai/query for puzzle_id={puzzle_id}, session_id={session_id}")
     messages = req.messages
     
+    # validate inputs
     try:
         messages = validate_query_params(
             board=board,
@@ -54,6 +60,7 @@ async def query_endpoint(req: ChatRequest):
     logger.info(f"Solved board: {solved_board}")
     logger.debug(f"Messages for LLM: {messages}")
 
+    # call llm
     try:
         response = await call_llm([msg.model_dump() for msg in messages])
         
@@ -63,7 +70,7 @@ async def query_endpoint(req: ChatRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected server error."
         )
-
+    
     if not hint_btn_pressed:
         logger.info("Successfully responded without hint extraction.")
         return {"reply": response}
