@@ -11,28 +11,18 @@ In both cases, you’ll keep your `OPENAI_API_KEY` in a `.env` file at the **pro
 
 ---
 
-## 1. Project Layout (example)
+## 1. Project Layout
 
-You don’t need this exact structure, but this is the idea:
+This is the current project structure:
 
 ```bash
 CSC-5240-Project/
 ├─ app.py          # contains FastAPI instance "app"
-├─ pyproject.toml  # (if using uv)
-├─ .env            # environment variables (not committed)
+├─ pyproject.toml
+├─ .env
 └─ ...
 ```
-Your app.py should expose a FastAPI instance named app, e.g.:
-```python
-# app.py
-from fastapi import FastAPI
 
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello from FastAPI!"}
-```
 ## 2. Create `.env` with OPENAI_API_KEY
 At the project root, create a file named `.env`:
 Or edit `.env` manually so it contains:
