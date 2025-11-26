@@ -2,6 +2,41 @@
 
 let puzzle_id = null;  // will be set when a new puzzle is created
 
+let timerInterval = null;
+let startTime = null;
+let currentDifficulty = 0.5;
+
+function startTimer() {
+    const timerEl = document.getElementById("timer");
+    if (!timerEl) return;
+
+    // clear any old timer
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    startTime = Date.now();
+    timerEl.textContent = "00:00";
+
+    timerInterval = setInterval(() => {
+        const diffMs = Date.now() - startTime;
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        timerEl.textContent =
+            String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+
 // TODO: make it to where you can add change numbers while selecting a number you've edited
 window.BoardUtils = (function () {
     function countEmptySquares(boardStr) {
@@ -135,7 +170,34 @@ window.BoardUtils = (function () {
         
         clearHighlights();
         highlightConflicts(result);
+
+        // 🔔 Check completion: no zeros AND no conflicts
+        const empties = countEmptySquares(boardString);
+        if (empties === 0 && result.valid) {
+            stopTimer();
+            console.log("Puzzle completed!");
+
+            const timerEl = document.getElementById("timer");
+            const finalTime = timerEl ? timerEl.textContent : "";
+
+            if (window.Swal) {
+                Swal.fire({
+                    title: "Nice work! 🎉",
+                    text: finalTime ? `You finished in ${finalTime}.` : "You solved the puzzle!",
+                    icon: "success",
+                    confirmButtonText: "New Board"
+                }).then(() => {
+                    // start a new board with the same difficulty
+                    window.BoardUtils.createBoard(currentDifficulty);
+                });
+            } else {
+                // fallback if SweetAlert isn't loaded
+                alert("Puzzle completed!");
+                window.BoardUtils.createBoard(currentDifficulty);
+            }
+        }
     }
+
 
     function getBoardString() {
         const boardEl = document.getElementById('board');
@@ -210,10 +272,13 @@ window.BoardUtils = (function () {
         }
     }
 
-    function createBoard(difficulty=0.5) {
+    function createBoard(difficulty = 0.5) {
         const boardEl = document.getElementById('board');
         let puzzle;
-        
+        messages = [];  // reset chat messages
+
+        currentDifficulty = difficulty;
+
         fetch(`/board/new/${difficulty}`, {
             method: "POST"
         }).then(response => response.json()).then(data => {
@@ -223,11 +288,36 @@ window.BoardUtils = (function () {
 
         }).then(() => {
             buildGrid(puzzle, boardEl);
+
+            // ⏱ start (or restart) timer on new board
+            startTimer();
             
             // Count empties
             const emptyCount = countEmptySquares(puzzle);
             console.log("Empty squares:", emptyCount);
         });
+    }
+
+
+    function clearBoard() {
+        const boardEl = document.getElementById("board");
+        if (!boardEl) return;
+
+        boardEl.querySelectorAll(".cell").forEach(cell => {
+            const isGiven = cell.dataset.given === "true";
+            const input = cell.querySelector("input");
+
+            // wipe user-entered values, keep givens
+            if (!isGiven && input) {
+                input.value = "";
+            }
+
+            // remove any visual highlights
+            cell.classList.remove("hint", "error");
+        });
+
+        // re-check board state (should now be conflict-free, mostly zeros)
+        onBoardChanged();
     }
 
     function clearHighlights() {
@@ -286,6 +376,7 @@ window.BoardUtils = (function () {
         highlightCell,
         clearHighlights,
         highlightConflicts,
+        clearBoard,
     };
 
 })();
