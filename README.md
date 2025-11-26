@@ -100,3 +100,5 @@ pip install -r requirements.txt
 ```
 python -m uvicorn app:app --reload
 ```
+Then open:
+`http://127.0.0.1:8000/`
