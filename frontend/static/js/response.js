@@ -91,5 +91,5 @@ document.getElementById("btn-hint").addEventListener("click", () => {
 
 document.getElementById("btn-clear").addEventListener("click", () => {
     console.log("Clear button clicked");
-    clearBoard();
+    window.BoardUtils.clearBoard();
 });
