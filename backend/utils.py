@@ -1,20 +1,14 @@
 # backend/utils.py
 
+# imports
 from pathlib import Path
 import logging
 import sys
 from typing import Optional
-
-PROMPT_DIR = Path(__file__).parent / "prompts"
-
-def load_prompt(name: str) -> str:
-    path = PROMPT_DIR / f"{name}"
-    return path.read_text(encoding="utf-8")
-
 from colorama import init as colorama_init, Fore, Style
 
-# Initialize colorama once (works well on Windows too)
-colorama_init(autoreset=True)
+PROMPT_DIR = Path(__file__).parent / "prompts"
+colorama_init(autoreset=True) # initialize colorama for Windows
 
 class ColorFormatter(logging.Formatter):
     LEVEL_COLORS = {
@@ -36,8 +30,11 @@ class ColorFormatter(logging.Formatter):
             return f"{fmt}\n{super().formatException(record.exc_info)}"
         return fmt
 
+def load_prompt(name: str) -> str:
+    path = PROMPT_DIR / f"{name}"
+    return path.read_text(encoding="utf-8")
 
-# Single shared handler for all loggers created via get_logger
+# single shared handler for all loggers created via get_logger
 _stream_handler: Optional[logging.Handler] = None
 
 def _get_stream_handler() -> logging.Handler:
@@ -49,6 +46,7 @@ def _get_stream_handler() -> logging.Handler:
     return _stream_handler
 
 
+# returns a logger with colored output
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
     Get a logger with colored output.
