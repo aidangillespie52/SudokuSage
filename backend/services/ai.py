@@ -1,18 +1,21 @@
-# backend/services/ai_service.py
+# backend/services/ai.py
 
+# imports
 import os
-import asyncio
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
-from backend.utils import get_logger, load_prompt
 from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
+# local imports
+from backend.utils import get_logger, load_prompt
+
 logger = get_logger(__name__)
 load_dotenv()
 
+# model for chat message
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
@@ -33,12 +36,8 @@ llm = ChatOpenAI(
 
 logger.info(f"Using LLM model: {MODEL}")
 
-def _to_lc_messages(messages: List[Dict[str, str]]):
-    """
-    Convert OpenAI-style messages:
-      [{"role":"user","content":"hi"}, ...]
-    into LangChain message objects.
-    """
+# convert list of dict messages to LangChain message objects
+def _to_lc_messages(messages: List[Dict[str, str]]) -> List[Any]:
     out = []
     for m in messages:
         role = m.get("role")
@@ -51,6 +50,7 @@ def _to_lc_messages(messages: List[Dict[str, str]]):
             out.append(HumanMessage(content=content))
     return out
 
+# convert various content formats to plain text
 def _content_to_text(content) -> str:
     if content is None:
         return ""
@@ -71,6 +71,7 @@ def _content_to_text(content) -> str:
     # fallback
     return str(content)
 
+# validate query parameters
 def validate_query_params(board: Optional[str], session_id: Optional[str], messages: List[ChatMessage]) -> None:
     if board is None:
         logger.warning("No board string provided in query parameters.")
@@ -105,6 +106,7 @@ def validate_query_params(board: Optional[str], session_id: Optional[str], messa
     
     return messages
 
+# add board and solution to messages
 def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str) -> None:
     board_info = (
         "Here is the Sudoku board you need to solve:\n"
@@ -124,6 +126,7 @@ def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str
     
     return messages
 
+# call the LLM with messages
 async def call_llm(messages: List[Dict[str, str]]) -> str:
     lc_messages = _to_lc_messages(messages)
     resp = await llm.ainvoke(lc_messages)

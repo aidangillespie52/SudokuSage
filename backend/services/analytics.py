@@ -1,10 +1,13 @@
-# add to your FastAPI backend
+# backend/services/analytics.py
 
-from fastapi import FastAPI
+# imports
+from typing import List, Dict, Any
+
+# local imports
 from backend.database import db_driver as driver
 
-
-def get_solve_steps():
+# gets all solve steps from the database
+def get_solve_steps() -> List[Dict[str, Any]]:
     conn = driver.get_connection()  # use YOUR driver function
     cur = conn.cursor()
 
