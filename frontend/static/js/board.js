@@ -36,6 +36,11 @@ function stopTimer() {
     }
 }
 
+function clearChat() {
+  messages = [];
+  const windowEl = document.getElementById("response-window");
+  windowEl.innerHTML = "";
+}
 
 // TODO: make it to where you can add change numbers while selecting a number you've edited
 window.BoardUtils = (function () {
@@ -275,7 +280,8 @@ window.BoardUtils = (function () {
     function createBoard(difficulty = 0.5) {
         const boardEl = document.getElementById('board');
         let puzzle;
-        messages = [];  // reset chat messages
+
+        clearChat();
 
         currentDifficulty = difficulty;
 
