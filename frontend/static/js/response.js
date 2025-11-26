@@ -17,7 +17,7 @@ async function handleResponse() {
 
   messages.push({ role: "user", content: userText });
 
-  // --- Get board ---
+  // --- get board ---
   const boardStr = window.BoardUtils.getBoardString(
     document.getElementById("board")
   );
@@ -25,7 +25,7 @@ async function handleResponse() {
   const payload = { messages: messages, board: boardStr, puzzle_id: puzzle_id, session_id: sessionID };
   console.log("REQUEST PAYLOAD:", payload);
 
-  // --- Add placeholder AI bubble ---
+  // --- add placeholder AI bubble ---
   const thinkingBubble = addThinkingBubble();
 
   try {
@@ -49,6 +49,7 @@ async function handleResponse() {
   }
 }
 
+// adds the user message to the chat window
 function addUserMessage(text) {
   const msg = document.createElement("div");
   msg.className = "chat-bubble user-bubble";
@@ -57,6 +58,7 @@ function addUserMessage(text) {
   windowEl.scrollTop = windowEl.scrollHeight;
 }
 
+// adds a "Thinking..." bubble to the chat window
 function addThinkingBubble() {
   const msg = document.createElement("div");
   msg.className = "chat-bubble ai-bubble";
@@ -66,12 +68,13 @@ function addThinkingBubble() {
   return msg;  // return DOM element so we can update it later
 }
 
+// updates the thinking bubble with new text
 function updateThinkingBubble(el, newText) {
   el.textContent = newText;
   windowEl.scrollTop = windowEl.scrollHeight;
 }
 
-// click + Enter
+// handles send button click or Enter key
 sendBtn.addEventListener("click", handleResponse);
 inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -80,7 +83,7 @@ inputEl.addEventListener("keydown", (e) => {
   }
 });
 
-// buttons
+// hint button logic
 document.getElementById("btn-hint").addEventListener("click", () => {
     const hintStr = "Give me a single cell hint for the current board.";
     console.log("Hint button clicked");
@@ -89,6 +92,7 @@ document.getElementById("btn-hint").addEventListener("click", () => {
     handleResponse();
 });
 
+// clear button logic
 document.getElementById("btn-clear").addEventListener("click", () => {
     console.log("Clear button clicked");
     window.BoardUtils.clearBoard();
