@@ -33,11 +33,11 @@ OPENAI_MODEL=your-desired-openai-model
 
 ### Available models
 You can see all available OpenAI models at:
-[text](https://platform.openai.com/docs/models)
+[https://platform.openai.com/docs/models](https://platform.openai.com/docs/models)
 
 ### API Key
 You can generate an API Key from the OpenAI dashboard at:
-[text](https://platform.openai.com/account/api-keys)
+[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
 
 ### Optional:
 You can add the parameter
