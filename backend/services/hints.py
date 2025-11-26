@@ -1,7 +1,11 @@
+# backend/services/hints.py
+
+# imports
 from langchain_openai import ChatOpenAI
 from pydantic.v1 import BaseModel, Field
 from backend.utils import load_prompt
 
+# model for extracted hint fields
 class HintExtraction(BaseModel):
     r: int = Field(..., description="1-based row index of the cell changed")
     c: int = Field(..., description="1-based column index of the cell changed")
@@ -18,11 +22,13 @@ llm = ChatOpenAI(
     temperature=0,
 )
 
+# structured LLM for extracting hint fields
 structured_llm = llm.with_structured_output(
     HintExtraction,
     method="function_calling",
 )
 
+# extract hint fields from ChatGPT response
 def extract_hint_fields(chatgpt_response: str) -> HintExtraction:
     template = load_prompt("parse_hint.md")
     full_prompt = template.replace("<<<HINT_TEXT>>>", chatgpt_response)
