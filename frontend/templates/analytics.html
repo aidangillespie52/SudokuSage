@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Solve Steps</title>
+<style>
+    body { font-family: sans-serif; background:#111; color:#eee; padding:20px; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; }
+    th, td { border:1px solid #444; padding:6px; font-size:14px; }
+    th { background:#222; }
+</style>
+</head>
+<body>
+
+<h1>Solve Steps</h1>
+
+<table>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Puzzle</th>
+    <th>Session ID</th>
+    <th>Step #</th>
+    <th>Hint</th>
+    <th>Row</th>
+    <th>Col</th>
+    <th>Value</th>
+    <th>Method Used</th>
+    <th>Created</th>
+</tr>
+</thead>
+<tbody id="steps-body"></tbody>
+</table>
+
+<script>
+async function loadSolveSteps() {
+    const rows = await fetch("/analytics/steps").then(r => r.json());
+    let html = "";
+
+    rows.forEach(s => {
+        html += `<tr>
+            <td>${s.id}</td>
+            <td>${s.puzzle}</td>
+            <td>${s.session_id}</td>
+            <td>${s.step_number}</td>
+            <td>${s.hint_text || ""}</td>
+            <td>${s.r}</td>
+            <td>${s.c}</td>
+            <td>${s.value}</td>
+            <td>${s.method_used || ""}</td>
+            <td>${s.created_at}</td>
+        </tr>`;
+    });
+
+    document.getElementById("steps-body").innerHTML = html;
+}
+
+loadSolveSteps();
+</script>
+
+</body>
+</html>
