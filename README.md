@@ -41,11 +41,14 @@ You can generate an API Key from the OpenAI dashboard at:
 
 ### Optional:
 You can add the parameter
+
 ```
 INCLUDE_SOLVED_BOARD_IN_PROMPT=true
 ```
+
 As a boolean if you'd like to see how the model does without
 also being provided the solved solution.
+
 ---
 ## Option A - Using `uv` (recommended)
 ### 1. Install `uv` (one-time)
