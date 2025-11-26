@@ -9,21 +9,32 @@
   <link rel="stylesheet" href="/static/css/board.css"/>
   <link rel="stylesheet" href="/static/css/response.css"/>
   <link rel="stylesheet" href="/static/css/buttons.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
 </head>
 <body>
-
   <!-- board -->
-  <div id="timer" class="timer">00:00</div>
-  <div class="board-container">
+  <div id="timer" class="timer"
+       data-step="1"
+       data-intro="This is your puzzle timer. It tracks how long you've been working on this board.">
+    00:00
+  </div>
+
+  <div class="board-container"
+       data-step="2"
+       data-intro="Here is your Sudoku board. Click a cell and type a number to play.">
     <div id="board" class="board"></div>
 
-    <div class="board-actions">
+    <div class="board-actions"
+         data-step="3"
+         data-intro="Use these buttons to get a hint, clear mistakes, or start a new game.">
       <button id="btn-hint">Hint</button>
       <button id="btn-clear">Clear</button>
       <button id="btn-new-game">New Game</button>
-      
+
       <div id="difficulty-modal" class="difficulty-modal hidden">
-        <div class="difficulty-card">
+        <div class="difficulty-card"
+             data-step="4"
+             data-intro="Pick a difficulty level when starting a new game.">
           <div class="difficulty-title">Pick Difficulty</div>
 
           <div class="difficulty-grid">
@@ -31,28 +42,35 @@
             <button class="difficulty-btn" data-diff="easy">Easy</button>
             <button class="difficulty-btn" data-diff="medium">Medium</button>
             <button class="difficulty-btn" data-diff="hard">Hard</button>
-
-            <!-- <button class="difficulty-btn" data-diff="expert">Expert</button> -->
           </div>
 
           <button id="difficulty-cancel" class="difficulty-cancel">Cancel</button>
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- ai interaction -->
-  <div class="right-side">
-    <div class="response-window" id="response-window"></div>
-    <div class="prompt-input">
+  <div class="right-side"
+       data-step="5"
+       data-intro="On the right, you can talk to the AI about the puzzle.">
+    <div class="response-window" id="response-window"
+         data-step="6"
+         data-intro="This window shows the AI's explanations and hints."></div>
+
+    <div class="prompt-input"
+         data-step="7"
+         data-intro="Type your question here and hit Send to ask the AI.">
       <input id="user-input" type="text" placeholder="Ask the AI…" />
       <button id="send-btn">Send</button>
     </div>
   </div>
 
+
   <!-- scripts -->
+  <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/static/js/walkthrough.js"></script>
   <script src="/static/js/board.js"></script>
   <script src="/static/js/response.js"></script>
 
