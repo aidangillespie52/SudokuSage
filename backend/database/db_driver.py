@@ -1,18 +1,17 @@
-#driver program for the sql database
+# backend/database/db_driver.py
 
-# db.py
 from pathlib import Path
 import sqlite3
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 DB_PATH = Path(__file__).resolve().parent / "sudoku.db"
 
-def get_connection():
+def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row  # nice dict-like rows
     return conn
 
-def init_db():
+def init_db() -> None:
     """Create tables if they don't exist."""
     conn = get_connection()
     cur = conn.cursor()
@@ -32,7 +31,7 @@ def init_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS solve_steps (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            puzzle        INTEGER NOT NULL,
+            puzzle        TEXT NOT NULL,
             session_id    TEXT NOT NULL,
             step_number   INTEGER NOT NULL,
             hint_text     TEXT,
@@ -48,7 +47,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-def create_puzzle(size: int, box_rows: int, box_cols: int, initial_board_str: str) -> int:
+def create_puzzle(size: int, box_rows: int, box_cols: int, initial_board_str: str) -> str:
     """Insert a new puzzle and return its ID."""
     conn = get_connection()
     cur = conn.cursor()
@@ -61,10 +60,11 @@ def create_puzzle(size: int, box_rows: int, box_cols: int, initial_board_str: st
     )
     
     conn.commit()
-    puzzle_id = cur.lastrowid
     conn.close()
-    return puzzle_id
+    
+    return initial_board_str
 
+# helper to get next step number
 def _get_next_step_number(conn: sqlite3.Connection, puzzle: str) -> int:
     cur = conn.cursor()
     cur.execute(
@@ -75,8 +75,9 @@ def _get_next_step_number(conn: sqlite3.Connection, puzzle: str) -> int:
     max_step = row["max_step"] if row and row["max_step"] is not None else None
     return 0 if max_step is None else max_step + 1
 
+# log a solve step
 def log_step(
-    puzzle: int,
+    puzzle: str,
     session_id: str,
     hint_text: str,
     r: int,
@@ -84,7 +85,7 @@ def log_step(
     value: int,
     method_used: str = "Unknown",
     step_number: Optional[int] = None,
-) -> int:
+) -> str:
     """Insert a solve step and return its ID."""
     
     conn = get_connection()
@@ -105,23 +106,24 @@ def log_step(
     )
     
     conn.commit()
-    step_id = cur.lastrowid
     conn.close()
     
-    return step_id
+    return puzzle
 
-def get_steps_for_puzzle(puzzle_id: int) -> List[sqlite3.Row]:
+def get_steps_for_puzzle(puzzle: str) -> List[sqlite3.Row]:
     """Fetch all steps for a puzzle in order."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM solve_steps WHERE puzzle_id=? ORDER BY step_number ASC",
-        (puzzle_id,),
+        "SELECT * FROM solve_steps WHERE puzzle=? ORDER BY step_number ASC",
+        (puzzle,),
     )
+    
     rows = cur.fetchall()
     conn.close()
     return rows
 
+# for testing
 if __name__ == "__main__":
     init_db()
     id = "some-id"
