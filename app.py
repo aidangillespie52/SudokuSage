@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.utils import get_logger
 from backend.api.routes_ai import router as ai_router
 from backend.api.routes_board import router as board_router
+from backend.api.routes_analytics import router as analytics_router
 
 from backend.database.db_driver import init_db
 
@@ -48,6 +49,11 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "frontend" / "templates"))
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics(request: Request):
+    return templates.TemplateResponse("analytics.html", {"request": request})
+
 # routes
 app.include_router(ai_router)
 app.include_router(board_router)
+app.include_router(analytics_router)
