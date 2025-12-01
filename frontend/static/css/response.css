@@ -1,5 +1,17 @@
 /* frontend/static/css/response.css */
 
+/* Right-side column: chat area + fixed input bar */
+.right-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  /* Fill the viewport (adjust if you have a header) */
+  height: calc(100vh - 40px);
+  box-sizing: border-box;
+}
+
+/* Main response window styling */
 .response-window {
   background: color-mix(in oklch, var(--text) 92%, black);
   color: var(--bg-light);
@@ -12,8 +24,6 @@
 
   /* keep it narrow enough to fit next to the board */
   width: min(340px, 32vw);
-  height: auto;
-  max-height: calc(100vh - 40px); /* subtract padding or header if needed */
 
   box-sizing: border-box;
   overflow-y: auto;
@@ -32,6 +42,17 @@
   background-image:
     radial-gradient(circle at 25% 25%, color-mix(in oklch, var(--text) 75%, black) 0%, transparent 60%),
     radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--text) 45%, black) 0%, transparent 70%);
+}
+
+/* Make the response window act like a scrollable flex column container */
+#response-window {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  /* Take up remaining vertical space inside .right-side */
+  flex: 1 1 auto;
+  min-height: 0; /* essential for flex children with overflow */
 }
 
 /* scrollbar styling — keeps the vibe clean */
@@ -58,6 +79,7 @@
   transition: box-shadow .30s ease, background .30s ease;
 }
 
+/* Chat bubbles inside the response window */
 .chat-bubble {
   max-width: 75%;
   padding: 10px 14px;
@@ -85,9 +107,39 @@
   border: 1px solid var(--border);
 }
 
-/* Make response-window a flexbox column */
-#response-window {
+/* Prompt input bar pinned under the chat window */
+.prompt-input {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
+
+  width: min(340px, 32vw);
+  box-sizing: border-box;
+}
+
+.prompt-input input {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklch, var(--bg-light) 90%, var(--text));
+  color: var(--text);
+}
+
+.prompt-input input::placeholder {
+  color: color-mix(in oklch, var(--text) 55%, var(--bg-light));
+}
+
+.prompt-input button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklch, var(--highlight) 50%, var(--text));
+  background: color-mix(in oklch, var(--highlight) 35%, var(--text));
+  color: var(--bg-light);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.prompt-input button:hover {
+  background: color-mix(in oklch, var(--highlight) 60%, var(--text));
 }
