@@ -13,24 +13,32 @@
 
         <h1>Solve Steps</h1>
 
+        <!-- Search Bar -->
+        <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search by Session ID..." 
+            style="width: 300px; padding: 8px; margin-bottom: 15px; font-size: 14px;"
+        >
+
         <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Puzzle</th>
-                    <th>Session ID</th>
-                    <th>Step #</th>
-                    <th>Hint</th>
-                    <th>Row</th>
-                    <th>Col</th>
-                    <th>Value</th>
-                    <th>Method Used</th>
-                    <th>Created</th>
-                </tr>
-            </thead>
-            <tbody id="steps-body"></tbody>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Puzzle</th>
+            <th>Session ID</th>
+            <th>Step #</th>
+            <th>Hint</th>
+            <th>Row</th>
+            <th>Col</th>
+            <th>Value</th>
+            <th>Method Used</th>
+            <th>Created</th>
+        </tr>
+        </thead>
+        <tbody id="steps-body"></tbody>
         </table>
 
-    <script src="/static/js/analytics.js"></script>
+        <script src="/static/js/analytics.js"></script>
     </body>
 </html>
