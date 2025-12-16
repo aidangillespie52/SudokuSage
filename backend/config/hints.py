@@ -1,0 +1,1 @@
+SINGLE_HINT = "Give me a single cell hint for the current board."
