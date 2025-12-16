@@ -53,7 +53,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     Call this from any module: logger = get_logger(__name__).
     """
     logger = logging.getLogger(name or "app")
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     # Avoid adding multiple handlers if called many times
     handler = _get_stream_handler()
