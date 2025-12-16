@@ -25,16 +25,17 @@ MODEL = os.getenv("OPENAI_MODEL", "gpt-5-nano")
 SYS_PROMPT = load_prompt("system.md")
 SYS_MESSAGE = ChatMessage(role="system", content=SYS_PROMPT)
 
-llm = ChatOpenAI(
-    model=MODEL,
-    use_responses_api=True,
-    temperature=0.2,
-    max_retries=3,
-    reasoning = {"effort": "medium"},
-    verbosity = "low",
-)
-
-logger.info(f"Using LLM model: {MODEL}")
+def build_messages(user_prompt: str) -> list[dict[str, str]]:
+    return [
+        {
+            "role": "system",
+            "content": SYS_PROMPT,
+        },
+        {
+            "role": "user",
+            "content": user_prompt,
+        },
+    ]
 
 # convert list of dict messages to LangChain message objects
 def _to_lc_messages(messages: List[Dict[str, str]]) -> List[Any]:
@@ -72,7 +73,12 @@ def _content_to_text(content) -> str:
     return str(content)
 
 # validate query parameters
-def validate_query_params(board: Optional[str], session_id: Optional[str], messages: List[ChatMessage]) -> None:
+def validate_query_params(
+    board: Optional[str],
+    session_id: Optional[str],
+    messages: List[ChatMessage]
+    ) -> None:
+    
     if board is None:
         logger.warning("No board string provided in query parameters.")
         raise HTTPException(
@@ -107,7 +113,11 @@ def validate_query_params(board: Optional[str], session_id: Optional[str], messa
     return messages
 
 # add board and solution to messages
-def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str) -> None:
+def add_board_to_messages(
+        messages: List[ChatMessage],
+        board: str, solution: str
+    ) -> None:
+
     board_info = (
         "Here is the Sudoku board you need to solve:\n"
         f"{board}\n\n"
@@ -126,8 +136,50 @@ def add_board_to_messages(messages: List[ChatMessage], board: str, solution: str
     
     return messages
 
+def add_board_to_dict_messages(
+    messages: List[Dict[str, str]],
+    board: str,
+    solution: str,
+    include_solved: bool = INCLUDE_SOLVED
+) -> List[Dict[str, str]]:
+    board_info = (
+        "Here is the Sudoku board you need to solve:\n"
+        f"{board}\n\n"
+    )
+
+    if INCLUDE_SOLVED:
+        board_info += (
+            "Here is the solved Sudoku board for your reference:\n"
+            f"{solution}\n\n"
+        )
+
+    board_info += "Please provide your response based on this board."
+
+    if messages and messages[-1].get("role") == "user":
+        messages[-1]["content"] += "\n\n" + board_info
+    else:
+        messages.append({
+            "role": "user",
+            "content": board_info
+        })
+
+    return messages
+
 # call the LLM with messages
-async def call_llm(messages: List[Dict[str, str]]) -> str:
+async def call_llm(
+    messages: List[Dict[str, str]],
+    model = MODEL,
+    ) -> str:
+
+    llm = ChatOpenAI(
+        model=model,
+        use_responses_api=True,
+        temperature=0.2,
+        max_retries=3,
+        reasoning = {"effort": "medium"},
+        verbosity = "low",
+    )
+
     lc_messages = _to_lc_messages(messages)
     resp = await llm.ainvoke(lc_messages)
 
