@@ -13,6 +13,8 @@ from backend.utils import get_logger
 from backend.api.ai import router as ai_router
 from backend.api.board import router as board_router
 from backend.api.analytics import router as analytics_router
+from backend.api.config import router as config_router
+
 from backend.database.db_driver import init_db
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -57,3 +59,4 @@ async def analytics(request: Request):
 app.include_router(ai_router)
 app.include_router(board_router)
 app.include_router(analytics_router)
+app.include_router(config_router)
