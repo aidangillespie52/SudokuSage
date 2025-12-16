@@ -85,7 +85,7 @@ inputEl.addEventListener("keydown", (e) => {
 
 // hint button logic
 document.getElementById("btn-hint").addEventListener("click", () => {
-    const hintStr = "Give me a single cell hint for the current board.";
+    const hintStr = fetch("/single-hint").then(r => r.text());
     console.log("Hint button clicked");
 
     inputEl.value = hintStr;
