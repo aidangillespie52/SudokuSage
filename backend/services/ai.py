@@ -24,6 +24,26 @@ INCLUDE_SOLVED = os.getenv("INCLUDE_SOLVED_BOARD_IN_PROMPT", "true").lower() == 
 MODEL = os.getenv("OPENAI_MODEL", "gpt-5-nano")
 SYS_PROMPT = load_prompt("system.md")
 SYS_MESSAGE = ChatMessage(role="system", content=SYS_PROMPT)
+REASONING_MODELS = {
+    "gpt-5",
+    "gpt-5-mini",
+    "gpt-5-nano",
+    "o4-mini",
+}
+
+def make_llm(model: str) -> ChatOpenAI:
+    kwargs = dict(
+        model=model,
+        use_responses_api=True,
+        temperature=0.2,
+        max_retries=3,
+    )
+
+    if model in REASONING_MODELS:
+        kwargs["reasoning"] = {"effort": "medium"}
+        kwargs["verbosity"] = "low"
+
+    return ChatOpenAI(**kwargs)
 
 def build_messages(user_prompt: str) -> list[dict[str, str]]:
     return [
@@ -171,14 +191,7 @@ async def call_llm(
     model = MODEL,
     ) -> str:
 
-    llm = ChatOpenAI(
-        model=model,
-        use_responses_api=True,
-        temperature=0.2,
-        max_retries=3,
-        reasoning = {"effort": "medium"},
-        verbosity = "low",
-    )
+    llm = make_llm(model)
 
     lc_messages = _to_lc_messages(messages)
     resp = await llm.ainvoke(lc_messages)
