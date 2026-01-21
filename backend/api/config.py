@@ -1,7 +1,8 @@
 # backend/api/config.py
 
 # imports
-from fastapi import APIRouter, PlainTextResponse
+from fastapi import APIRouter
+from fastapi.responses import PlainTextResponse
 
 # local imports
 from backend.utils import get_logger
