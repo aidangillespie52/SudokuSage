@@ -22,3 +22,8 @@ async def steps() -> List[Dict[str, Any]]:
         raise HTTPException(status_code=500, detail="Failed to fetch solve steps.")
     
     return data
+
+@router.post("/ingest")
+async def ingest(location_data: str):
+    print(location_data)
+    
