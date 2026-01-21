@@ -25,5 +25,4 @@ async def steps() -> List[Dict[str, Any]]:
 
 @router.post("/ingest")
 async def ingest(location_data: str):
-    print(location_data)
-    
+    logger.info("Ingesting location data: %s", location_data)
